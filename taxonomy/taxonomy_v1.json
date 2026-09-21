@@ -1,0 +1,43 @@
+{
+  "version": "1.0.0",
+  "description": "MineralIQ taxonomy v1 — 5 pilot minerals (Li, REE, graphite, Co, Ni). Four levels: mineral → value-chain stage → process family → technology sub-domain.",
+  "minerals": [
+    {"id": "LI", "name": "Lithium", "symbols": ["Li"], "lexicon": ["lithium", "li-ion", "spodumene", "lepidolite", "brine", "lithia"]},
+    {"id": "REE", "name": "Rare Earth Elements", "symbols": ["REE", "REO"], "members": ["Nd", "Pr", "Dy", "Tb", "La", "Ce", "Y"], "lexicon": ["rare earth", "rare-earth", "neodymium", "praseodymium", "dysprosium", "terbium", "lanthanum", "cerium", "yttrium", "monazite", "bastnaesite"]},
+    {"id": "GRA", "name": "Graphite", "symbols": ["C"], "lexicon": ["graphite", "flake graphite", "spheronised", "spheronized", "anode graphite", "graphene"]},
+    {"id": "CO", "name": "Cobalt", "symbols": ["Co"], "lexicon": ["cobalt", "cobaltite", "heterogenite"]},
+    {"id": "NI", "name": "Nickel", "symbols": ["Ni"], "lexicon": ["nickel", "laterite", "sulphide nickel", "sulfide nickel", "ferronickel", "nickel pig iron", "NPI", "MHP", "MSP"]}
+  ],
+  "value_chain_stages": [
+    {"id": "exploration", "name": "Exploration"},
+    {"id": "mining", "name": "Mining"},
+    {"id": "beneficiation", "name": "Beneficiation"},
+    {"id": "extraction_refining", "name": "Extraction / Refining"},
+    {"id": "materials", "name": "Materials"},
+    {"id": "recycling", "name": "Recycling"}
+  ],
+  "process_families": [
+    {"id": "geological_mapping", "stage": "exploration", "name": "Geological mapping & sampling", "subdomains": ["pegmatite_mapping", "laterite_profiling"]},
+    {"id": "remote_sensing", "stage": "exploration", "name": "Remote sensing / spectral", "subdomains": ["sentinel2_indices", "hyperspectral_targeting"]},
+    {"id": "geophysics", "stage": "exploration", "name": "Geophysics", "subdomains": ["aeromagnetic", "radiometric", "electromagnetic"]},
+    {"id": "geochemistry", "stage": "exploration", "name": "Geochemistry", "subdomains": ["soil_geochem", "brine_assay"]},
+    {"id": "open_pit", "stage": "mining", "name": "Open-pit mining", "subdomains": ["pit_design", "grade_control"]},
+    {"id": "underground", "stage": "mining", "name": "Underground mining", "subdomains": ["stoping", "backfill"]},
+    {"id": "solution_mining", "stage": "mining", "name": "Solution / brine extraction", "subdomains": ["brine_pumping", "evaporation_ponds", "dle"]},
+    {"id": "crushing_grinding", "stage": "beneficiation", "name": "Crushing & grinding", "subdomains": ["comminution", "classification"]},
+    {"id": "flotation", "stage": "beneficiation", "name": "Flotation", "subdomains": ["spodumene_flotation", "graphite_flotation", "sulfide_flotation"]},
+    {"id": "magnetic_gravity", "stage": "beneficiation", "name": "Magnetic / gravity separation", "subdomains": ["magsep", "gravity_sep", "dense_media"]},
+    {"id": "hydrometallurgy", "stage": "extraction_refining", "name": "Hydrometallurgy", "subdomains": ["acid_leaching", "alkaline_leaching", "bioleaching", "pressure_leaching_hpal"]},
+    {"id": "pyrometallurgy", "stage": "extraction_refining", "name": "Pyrometallurgy", "subdomains": ["roasting", "smelting", "calcination"]},
+    {"id": "solvent_extraction", "stage": "extraction_refining", "name": "Solvent extraction", "subdomains": ["sx_lithium", "sx_ree", "sx_co_ni"]},
+    {"id": "ion_exchange", "stage": "extraction_refining", "name": "Ion exchange / adsorption", "subdomains": ["resin_ree", "dle_adsorption"]},
+    {"id": "electrowinning", "stage": "extraction_refining", "name": "Precipitation / crystallisation / electrowinning", "subdomains": ["li_carbonate_precip", "mhp_msp_precip", "electrowinning"]},
+    {"id": "cathode", "stage": "materials", "name": "Cathode materials", "subdomains": ["lfp", "nmc", "nca"]},
+    {"id": "anode", "stage": "materials", "name": "Anode materials", "subdomains": ["spheronised_graphite", "silicon_blend"]},
+    {"id": "magnet", "stage": "materials", "name": "Rare-earth magnets", "subdomains": ["ndfeb_sintered", "bonded_magnet"]},
+    {"id": "mech_recycling", "stage": "recycling", "name": "Mechanical pre-treatment", "subdomains": ["dismantling", "shredding_sorting", "black_mass"]},
+    {"id": "hydro_recycling", "stage": "recycling", "name": "Hydrometallurgical recycling", "subdomains": ["black_mass_leach", "battery_sx"]},
+    {"id": "pyro_recycling", "stage": "recycling", "name": "Pyrometallurgical recycling", "subdomains": ["smelter_route"]},
+    {"id": "direct_recycling", "stage": "recycling", "name": "Direct recycling", "subdomains": ["cathode_healing"]}
+  ]
+}

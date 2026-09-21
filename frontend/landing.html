@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MineralIQ · Smart Technology and Patent Tracker for Critical Minerals</title>
+<style>
+  :root { --ink:#111; --muted:#5b5b5b; --line:#d9d9d9; --soft:#f4f4f4; --bg:#fff; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; color:var(--ink); background:var(--bg); }
+  .wrap { max-width:1180px; margin:0 auto; padding:0 32px; }
+  header { border-bottom:1px solid var(--line); }
+  .nav { display:flex; align-items:center; justify-content:space-between; height:76px; }
+  .brand { display:flex; align-items:center; gap:14px; }
+  .brand img { height:52px; width:52px; }
+  .brand .name { font-size:22px; font-weight:700; letter-spacing:-0.3px; }
+  .brand .by { font-size:11.5px; color:var(--muted); letter-spacing:.4px; text-transform:uppercase; }
+  nav a { margin-left:26px; font-size:14px; color:var(--ink); text-decoration:none; }
+  nav a.cta { border:1.5px solid var(--ink); padding:8px 16px; border-radius:6px; }
+  .hero { padding:64px 0 40px; display:grid; grid-template-columns:1.2fr 1fr; gap:48px; align-items:center; }
+  .kicker { font-size:12px; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
+  h1 { font-size:46px; line-height:1.1; margin:0 0 18px; letter-spacing:-0.8px; }
+  .lead { font-size:17px; line-height:1.55; color:#333; max-width:560px; margin:0 0 26px; }
+  .search { display:flex; border:1.5px solid var(--ink); border-radius:8px; overflow:hidden; max-width:600px; }
+  .search input { flex:1; border:0; padding:14px 16px; font-size:15px; outline:none; }
+  .search button { border:0; background:var(--ink); color:#fff; padding:0 22px; font-size:15px; font-weight:600; }
+  .chips { margin-top:14px; display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { font-size:12.5px; border:1px solid var(--line); border-radius:999px; padding:5px 11px; color:#333; background:#fff; }
+  .panel { border:1px solid var(--line); border-radius:10px; padding:18px; background:#fff; }
+  .panel h3 { margin:0 0 12px; font-size:13px; letter-spacing:.8px; text-transform:uppercase; color:var(--muted); }
+  .heat { display:grid; grid-template-columns:90px repeat(5,1fr); gap:4px; font-size:11.5px; }
+  .heat .h { color:var(--muted); text-align:center; padding:4px 0; }
+  .heat .r { color:var(--muted); padding:6px 0; }
+  .heat .c { height:30px; border-radius:4px; }
+  .legend { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:10px; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .stat { padding:22px 0; border-right:1px solid var(--line); }
+  .stat:last-child { border-right:0; }
+  .stat b { display:block; font-size:30px; letter-spacing:-0.5px; }
+  .stat span { font-size:13px; color:var(--muted); }
+  .features { padding:48px 0; display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  .f { border:1px solid var(--line); border-radius:10px; padding:22px; }
+  .f .n { font-size:12px; color:var(--muted); margin-bottom:10px; }
+  .f h4 { margin:0 0 8px; font-size:17px; }
+  .f p { margin:0; font-size:13.5px; line-height:1.5; color:#444; }
+  .sources { padding:0 0 48px; }
+  .sources h3 { font-size:13px; letter-spacing:.8px; text-transform:uppercase; color:var(--muted); margin:0 0 14px; }
+  .srcrow { display:flex; flex-wrap:wrap; gap:10px 28px; font-size:14px; color:#333; }
+  footer { border-top:1px solid var(--line); padding:22px 0 30px; display:flex; justify-content:space-between; font-size:12.5px; color:var(--muted); }
+</style>
+</head>
+<body>
+<header><div class="wrap nav">
+  <div class="brand">
+    <img src="public/vit-logo.svg" alt="Vellore Institute of Technology">
+    <div><div class="name">MineralIQ</div><div class="by">Team Musketeers · Vellore Institute of Technology</div></div>
+  </div>
+  <nav><a href="#">Search</a><a href="#">Dashboard</a><a href="#">Heatmap</a><a href="#">Organisations</a><a href="#">Gaps</a><a href="#" class="cta">Open app</a></nav>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <div class="kicker">CMiH 2026 · Problem Statement 02</div>
+      <h1>Smart Technology and Patent Tracker for India's Critical Minerals</h1>
+      <p class="lead">One place to search Indian patents and public R&amp;D activity by mineral, value-chain stage and process. See who is working on what, where research is not turning into patents, and where nobody is working at all.</p>
+      <div class="search"><input value="lithium spodumene extraction" readonly><button>Search</button></div>
+      <div class="chips"><span class="chip">Lithium</span><span class="chip">Rare earth elements</span><span class="chip">Graphite</span><span class="chip">Cobalt</span><span class="chip">Nickel</span><span class="chip">Hydrometallurgy</span><span class="chip">Recycling</span><span class="chip">CSIR-NML</span></div>
+    </div>
+    <div class="panel">
+      <h3>Mineral × value-chain activity (pilot data)</h3>
+      <div class="heat">
+        <div></div><div class="h">Explore</div><div class="h">Mine</div><div class="h">Benef.</div><div class="h">Extract</div><div class="h">Recycle</div>
+        <div class="r">Lithium</div><div class="c" style="background:#d6d6d6"></div><div class="c" style="background:#ececec"></div><div class="c" style="background:#a9a9a9"></div><div class="c" style="background:#2b2b2b"></div><div class="c" style="background:#7a7a7a"></div>
+        <div class="r">REE</div><div class="c" style="background:#bdbdbd"></div><div class="c" style="background:#e3e3e3"></div><div class="c" style="background:#8f8f8f"></div><div class="c" style="background:#3d3d3d"></div><div class="c" style="background:#c9c9c9"></div>
+        <div class="r">Graphite</div><div class="c" style="background:#e6e6e6"></div><div class="c" style="background:#cfcfcf"></div><div class="c" style="background:#5c5c5c"></div><div class="c" style="background:#9c9c9c"></div><div class="c" style="background:#efefef"></div>
+        <div class="r">Cobalt</div><div class="c" style="background:#f0f0f0"></div><div class="c" style="background:#f0f0f0"></div><div class="c" style="background:#d0d0d0"></div><div class="c" style="background:#6e6e6e"></div><div class="c" style="background:#4a4a4a"></div>
+        <div class="r">Nickel</div><div class="c" style="background:#e9e9e9"></div><div class="c" style="background:#dcdcdc"></div><div class="c" style="background:#b4b4b4"></div><div class="c" style="background:#5a5a5a"></div><div class="c" style="background:#8a8a8a"></div>
+      </div>
+      <div class="legend"><span>Low activity</span><span>Patents + R&amp;D records</span><span>High activity</span></div>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><b>30</b><span>notified critical minerals in taxonomy</span></div>
+    <div class="stat"><b>6</b><span>value-chain stages tracked</span></div>
+    <div class="stat"><b>7</b><span>public data sources harvested</span></div>
+    <div class="stat"><b>5</b><span>pilot minerals in prototype</span></div>
+  </section>
+
+  <section class="features">
+    <div class="f"><div class="n">01</div><h4>Search by mineral and process</h4><p>Faceted search across patents, projects and publications, organised by a critical-minerals taxonomy rather than IPC codes alone.</p></div>
+    <div class="f"><div class="n">02</div><h4>Trends and organisations</h4><p>Filing trends by year and sub-domain, leading institutions, inventor networks and research-to-patent conversion.</p></div>
+    <div class="f"><div class="n">03</div><h4>Gap analysis</h4><p>Research intensity against patenting intensity for every mineral and process cell, with ranked white spaces and overlaps.</p></div>
+    <div class="f"><div class="n">04</div><h4>Alerts</h4><p>Subscribe to a mineral or sub-domain and get notified of new Indian patents, status changes and R&amp;D announcements.</p></div>
+  </section>
+
+  <section class="sources">
+    <h3>Public sources</h3>
+    <div class="srcrow"><span>Google Patents Public Datasets</span><span>WIPO PATENTSCOPE</span><span>CSIR-NML</span><span>CSIR-IMMT</span><span>JNARDDC / NCMM</span><span>DST / SERB</span><span>OpenAlex</span></div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <span>MineralIQ · Critical Minerals Innovation Hackathon 2026 · JNARDDC, Ministry of Mines</span>
+  <span>Open data · Open source · Prototype v0.1</span>
+</footer>
+</body>
+</html>

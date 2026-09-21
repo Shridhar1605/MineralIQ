@@ -1,0 +1,46 @@
+flowchart LR
+  subgraph SRC[Public sources]
+    GBP[Google Patents<br/>BigQuery export]
+    PPS[WIPO PATENTSCOPE<br/>API]
+    INST[CSIR NML/IMMT<br/>JNARDDC DST/SERB]
+    OA[OpenAlex/CrossRef<br/>API]
+    INPASS[InPASS<br/>manual spot checks only]
+  end
+  subgraph ING[Ingestion<br/>adapters + pipeline]
+    AD[7 adapters<br/>saved-sample tested]
+    RAW[(raw JSONL store)]
+    CLN[clean + dedupe<br/>UNIQUE source+url]
+  end
+  subgraph NLP[Processing]
+    LEX[lexicon classifier<br/>→ SciBERT Week 2]
+    RES[org resolver<br/>alias map]
+  end
+  subgraph STO[Storage]
+    PG[(PostgreSQL<br/>records + orgs)]
+    G[(knowledge graph<br/>Neo4j or PG tables)]
+    IDX[search index<br/>PG FTS or in-memory]
+  end
+  subgraph APP[API + UI]
+    API[FastAPI<br/>search records dashboard<br/>heatmap orgs gaps alerts]
+    WEB[React<br/>5 tabs]
+  end
+  subgraph OPS[Nightly ops]
+    N[nightly.py<br/>harvest evaluate dump]
+    B[backup.tgz<br/>manifest verify restore]
+    AL[alerts.json<br/>fire-once state]
+  end
+  GBP --> AD
+  PPS --> AD
+  INST --> AD
+  OA --> AD
+  INPASS -.-> AD
+  AD --> RAW --> CLN --> LEX --> PG
+  CLN --> RES --> PG
+  PG --> G
+  PG --> IDX
+  G --> API
+  IDX --> API
+  API --> WEB
+  PG --> N
+  N --> B
+  API --> AL

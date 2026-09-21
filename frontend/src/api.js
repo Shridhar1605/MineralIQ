@@ -1,0 +1,10 @@
+const B = '';
+export const j = (p) => fetch(B + p).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+export const search = (q, f = {}) => j(`/search?${new URLSearchParams({ q, ...f })}`);
+export const record = (id) => j(`/records/${encodeURIComponent(id)}`);
+export const summary = () => j('/dashboard/summary');
+export const heatmap = () => j('/heatmap');
+export const org = (n) => j(`/orgs/${encodeURIComponent(n)}`);
+export const matrix = () => j('/gaps/matrix');
+export const whitespace = (top = 10) => j(`/gaps/whitespace?top=${top}`);
+export const collabs = () => j('/gaps/collaborations');

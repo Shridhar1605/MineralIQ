@@ -1,0 +1,58 @@
+{
+  "s1": {
+    "date": "2026-09-17",
+    "status": "PASS",
+    "tests": "11 passed",
+    "fixtures": "8 patents + 4 rd (seed; expand to ~200 in Stage 1)",
+    "taxonomy": "v1.0.0 5 minerals/6 stages/22 families"
+  },
+  "s2": {
+    "date": "2026-09-17",
+    "status": "PASS",
+    "tests": "15 passed (s1 6 + s2 5 + s3-s6 placeholders 4)",
+    "adapters": "7/7 parse saved samples, required-field completeness 100% (gate >=95%)",
+    "harvest": "14 parsed, 14 deduped, 0 duplicates; repeated harvest adds zero",
+    "note": "samples validate parser code paths; 2,000-record live harvest is a Week-1 activity"
+  },
+  "s3": {
+    "date": "2026-09-17",
+    "status": "PASS (provisional)",
+    "tests": "19 passed (s1 6 + s2 5 + s3 5 + s4-s6 placeholders 3)",
+    "lexicon_holdout_n4": "mineral acc=0.75 F1=0.80; stage acc=1.00 F1=1.00 — provisional, thresholds enforce at n>=100",
+    "org_merge": "100% on 14-org alias seed (gate >=90%); top20 collision-free; CSIR HQ != CSIR-NML",
+    "graph": "12/12 record nodes, 0 dangling edges, co-filing edge verified",
+    "note": "lexicon is the documented fallback baseline; Week 2 fine-tunes SciBERT on GPU after hold-out expansion + labelling agreement >=80%"
+  },
+  "s4": {
+    "date": "2026-09-17",
+    "status": "PASS (local)",
+    "tests": "24 passed (s1 6 + s2 5 + s3 5 + s4 6 + s5-s6 placeholders 2)",
+    "queries": "20/20 golden queries return expected top-1 (frozen contract)",
+    "speed": "avg search <1ms over 12 records (gate <1000ms); re-measure at 2,000+ in Week 3",
+    "dashboards": "summary totals == direct counts; heatmap cells reconcile per mineral",
+    "frontend": "React tabs (Search/Dashboards/Heatmap/Organisations) build clean via vite",
+    "note": "Playwright spec saved; live browser run deferred to Week 3 (needs :8000 + :5173)"
+  },
+  "s5": {
+    "date": "2026-09-17",
+    "status": "PASS (local)",
+    "tests": "28 passed (s1 6 + s2 5 + s3 5 + s4 6 + s5 5 + s6 placeholder 1)",
+    "handcheck": "5/5 sampled matrix cells match hand calculation",
+    "alerts": "synthetic patent fires exactly 1 alert; repeat harvest fires 0",
+    "mentor_signoff": false,
+    "note": "top-3 whitespace sanity check by mentor/faculty pending (Week 4); frontend Gaps tab builds clean"
+  },
+  "s6": {
+    "date": "2026-09-17",
+    "status": "PASS (local); feature freeze in effect",
+    "tests": "31 passed (s1 6 + s2 5 + s3 5 + s4 6 + s5 5 + s6 4)",
+    "backup": "21 files tarball; verify ok; restore byte-identical; tamper detected via manifest",
+    "nightly": "harvest+evaluate+graph+backup complete unattended, exit 0",
+    "deliverables": "report, architecture.mmd, deck, demo script, checklist all present",
+    "open_human": ["cloud deploy + regress against it", "demo recording", "mentor whitespace sign-off", "upload by midday 30 Oct"]
+  },
+  "tolerance": {
+    "quality_pp": 2.0,
+    "speed_pct": 20.0
+  }
+}
