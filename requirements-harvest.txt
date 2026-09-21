@@ -1,0 +1,5 @@
+# Harvest-time only. Deliberately NOT in requirements.txt: the API image stays
+# small and the web server never needs BigQuery or dataframe libraries.
+google-cloud-bigquery==3.*
+pandas==2.*
+pyarrow==17.*

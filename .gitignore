@@ -9,13 +9,20 @@ venv/
 node_modules/
 frontend/dist/
 
-# Secrets — never commit
+# Secrets — never commit.
+# GCP service-account keys are downloaded with unpredictable names like
+# <project>-<keyid>.json, so match the shape rather than a fixed name.
 .env
 .env.local
 *.pem
 *.key
+*.p12
 credentials.json
 service-account*.json
+*-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].json
+gcp-*.json
+secrets/
+.secrets/
 
 # Generated data and artefacts
 data/

@@ -12,3 +12,22 @@ All harvesting respects robots.txt + ≤1 req/s. No CAPTCHA/login bypass. Every 
 | DST / SERB project listings | rd | requests ≤1/s | Public info, attribution | 2026-09-17 |
 | OpenAlex / CrossRef | publication metadata | API (check if OpenAlex now needs key — see spike) | CC0 / Crossref ToS | 2026-09-17 |
 | PSU annual reports (NALCO/HCL/IREL/KABIL/MECL), Ministry of Mines reports | rd | PDF download | Public reports, attribution | 2026-09-17 |
+
+## Google Patents via BigQuery — access and cost control
+
+Table: `patents-public-data.patents.publications` (Google Patents Public Data,
+CC BY 4.0, attribution required in the report and the UI footer).
+
+Billing is on **bytes scanned**, not rows returned, and the table is multi
+terabyte. The free tier is 1 TB per calendar month. `scripts/bq_spike.py`
+therefore always dry-runs first, prints the estimate, and refuses to bill a
+query above `--budget-gb` (default 25). The export is written once to local
+Parquet and the pipeline reads that file; the table is never re-queried.
+
+Setup:
+
+1. Service-account key stored outside the repo, mode 600.
+2. `GOOGLE_APPLICATION_CREDENTIALS` points at it.
+3. The service account needs `roles/bigquery.jobUser` on the billing project.
+   Reading the public dataset alone is not enough: creating any job, including
+   a dry run, requires that role.
