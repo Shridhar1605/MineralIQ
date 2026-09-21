@@ -110,14 +110,62 @@ def test_journey_search_to_record_detail():
 
 
 def test_classifier_metrics_hold_after_reindex():
-    base = json.loads((ROOT / "baselines.json").read_text())
-    holdout = json.loads((ROOT / "fixtures" / "holdout_labels.json").read_text())
-    by_id = {}
-    for fp in ("golden_patents.json", "golden_rd.json"):
-        for r in json.loads((ROOT / "fixtures" / fp).read_text()):
-            by_id[r["fixture_id"]] = r
-    rep = evaluate_holdout(LexiconClassifier(ROOT / "taxonomy" / "taxonomy_v1.json"),
-                           by_id, holdout)
-    assert rep["mineral"]["subset_accuracy"] == 0.75
-    assert rep["mineral"]["macro_f1"] == 0.8
-    assert "s3" in base  # s3 baseline exists to compare against
+    """Classifier quality must not regress when the index is rebuilt.
+
+    Checked against the recorded baseline under the documented tolerance
+    rather than by hardcoded equality: `== 0.8` went red whenever a metric
+    legitimately moved, which trained everyone to edit the literal, and said
+    nothing at all when a metric silently degraded.
+    """
+    from quality.drift import check_drift, measure_current
+    from search.index import SearchIndex
+
+    quality_only = lambda m: {k: v for k, v in m.items() if not k.endswith("_ms_avg")}
+
+    before = measure_current()
+    api.INDEX = SearchIndex(api.RECORDS)           # force a rebuild
+    after = measure_current()
+    # Quality metrics are deterministic, so they must be identical. Timing is
+    # not, so it is left to the drift rule and its tolerance.
+    assert quality_only(after) == quality_only(before), \
+        "rebuilding the index changed classifier metrics"
+    result = check_drift(after)
+    assert result["ok"], result["failures"] + result["missing"]
+
+
+def test_metric_baselines_are_machine_readable():
+    """The tolerance block existed but nothing read it, and the only
+    baseline-shaped check compared two hardcoded floats with ==."""
+    from quality.drift import load_baselines
+
+    doc = load_baselines()
+    assert doc["tolerance"]["quality_pp"] > 0 and doc["tolerance"]["speed_pct"] > 0
+    assert doc.get("metrics"), "no machine-readable metrics recorded"
+    for name, entry in doc["metrics"].items():
+        assert isinstance(entry["value"], (int, float)), name
+        assert entry["kind"] in ("quality", "speed"), name
+
+
+def test_current_metrics_are_within_baseline_tolerance():
+    from quality.drift import check_drift, measure_current
+
+    result = check_drift(measure_current())
+    assert result["ok"], result["failures"] + result["missing"]
+
+
+def test_drift_rule_catches_regressions_and_allows_improvements():
+    from quality.drift import check_drift
+
+    doc = {"tolerance": {"quality_pp": 2.0, "speed_pct": 20.0},
+           "metrics": {"q": {"value": 0.90, "kind": "quality"},
+                       "t": {"value": 100.0, "kind": "speed"}}}
+    ok = check_drift({"q": 0.885, "t": 115.0}, doc=doc)          # within tolerance
+    assert ok["ok"], ok["failures"]
+    bad_q = check_drift({"q": 0.85, "t": 100.0}, doc=doc)        # 5 pp drop
+    assert not bad_q["ok"] and bad_q["failures"][0]["metric"] == "q"
+    bad_t = check_drift({"q": 0.90, "t": 130.0}, doc=doc)        # 30% slower
+    assert not bad_t["ok"] and bad_t["failures"][0]["metric"] == "t"
+    better = check_drift({"q": 0.99, "t": 10.0}, doc=doc)        # improvements
+    assert better["ok"] and len(better["improvements"]) == 2
+    gone = check_drift({"q": 0.90}, doc=doc)                     # stopped measuring
+    assert not gone["ok"] and gone["missing"][0]["metric"] == "t"

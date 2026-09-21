@@ -48,12 +48,19 @@ def test_holdout_harness_reports_provisional_figures():
     assert holdout["locked"] is True
     by_id = {r["fixture_id"]: r for r in _golden()}
     rep = evaluate_holdout(_clf(), by_id, holdout)
-    assert rep["n"] == len(holdout["test_ids"]) == 4
+    assert rep["n"] == len(holdout["test_ids"])
     for task in ("mineral", "stage"):
         assert 0.0 <= rep[task]["subset_accuracy"] <= 1.0
         assert 0.0 <= rep[task]["macro_f1"] <= 1.0
-    assert rep["provisional"] is True
-    assert rep["gate"].startswith("PROVISIONAL")
+    # Provisional only while the hold-out is too small to judge 85% on.
+    # Asserting the *rule*, not the current state, so growing the hold-out
+    # turns enforcement on instead of breaking this test.
+    assert rep["provisional"] is (rep["n"] < 100)
+    if rep["provisional"]:
+        assert rep["gate"].startswith("PROVISIONAL")
+    else:
+        assert rep["gate"] in ("PASS", "FAIL")
+        assert (rep["gate"] == "PASS") is passes_gate(rep["mineral"], rep["stage"])
 
 
 def test_gate_threshold_logic():
@@ -95,3 +102,49 @@ def test_graph_counts_reconcile():
     g2 = build_graph(demo, res)
     cofile = [e for e in g2["edges"] if e[2] == "cofiled_with"]
     assert len(cofile) == 1  # CSIR-NML == National Metallurgical Laboratory merged
+
+
+def _synthetic_holdout(n, correct):
+    """n records; the first `correct` of them are labelled to match what the
+    lexicon will predict, the rest are labelled to contradict it."""
+    ids = [f"SYN-{i:04d}" for i in range(n)]
+    by_id, labels = {}, {}
+    for i, fid in enumerate(ids):
+        ok = i < correct
+        by_id[fid] = {"fixture_id": fid,
+                      "title": "Lithium extraction from spodumene",
+                      "abstract": "acid roasting and water leaching"}
+        labels[fid] = {"mineral_ids": ["LI"] if ok else ["GRA"],
+                       "stage_ids": ["extraction_refining"] if ok else ["recycling"]}
+    return by_id, {"locked": True, "test_ids": ids, "labels": labels}
+
+
+def test_threshold_enforces_once_the_holdout_is_large_enough():
+    """Regression: the gate returned PROVISIONAL for any n<100 and the test
+    pinned that state, so a classifier scoring 0.0 passed the s3 gate."""
+    by_id, holdout = _synthetic_holdout(120, correct=120)
+    rep = evaluate_holdout(_clf(), by_id, holdout)
+    assert rep["provisional"] is False
+    assert rep["gate"] == "PASS", rep
+
+
+def test_a_bad_classifier_fails_the_gate_at_full_holdout_size():
+    by_id, holdout = _synthetic_holdout(120, correct=60)   # 50% accuracy
+    rep = evaluate_holdout(_clf(), by_id, holdout)
+    assert rep["provisional"] is False
+    assert rep["gate"] == "FAIL", rep
+    assert rep["mineral"]["subset_accuracy"] < 0.85
+
+
+def test_macro_f1_excludes_unexercised_labels():
+    """Regression: a label absent from both gold and prediction scored a free
+    1.0, so a stage macro-F1 of 1.00 could rest on four untested labels."""
+    from classify.metrics import score_task
+
+    scored = score_task([["LI"]], [["LI"]], ["LI", "GRA", "CO", "NI", "REE"])
+    assert scored["labels_scored"] == 1
+    assert scored["labels_unexercised"] == 4
+    assert scored["macro_f1"] == 1.0          # the one exercised label is perfect
+    half = score_task([["LI"], ["LI"]], [["LI"], ["GRA"]], ["LI", "GRA", "CO"])
+    assert half["labels_scored"] == 2 and half["labels_unexercised"] == 1
+    assert half["macro_f1"] < 1.0

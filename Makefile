@@ -1,6 +1,7 @@
-.PHONY: regress test s1 s2 s3 s4 s5 s6 up down validate fixtures harvest evaluate
+.PHONY: regress test s1 s2 s3 s4 s5 s6 up down validate fixtures harvest evaluate drift rebaseline
 regress:
 	python3 -m pytest -m "s1 or s2 or s3 or s4 or s5 or s6" -q
+	python3 scripts/check_drift.py
 s1:
 	python3 -m pytest -m s1 -q
 s2:
@@ -25,3 +26,7 @@ up:
 	docker compose up --build
 down:
 	docker compose down
+drift:
+	python3 scripts/check_drift.py
+rebaseline:
+	python3 scripts/check_drift.py --record

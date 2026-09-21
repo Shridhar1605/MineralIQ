@@ -18,7 +18,7 @@
     "date": "2026-09-17",
     "status": "PASS (provisional)",
     "tests": "19 passed (s1 6 + s2 5 + s3 5 + s4-s6 placeholders 3)",
-    "lexicon_holdout_n4": "mineral acc=0.75 F1=0.80; stage acc=1.00 F1=1.00 — provisional, thresholds enforce at n>=100",
+    "lexicon_holdout_n4": "mineral acc=0.75 F1=0.80; stage acc=1.00 F1=1.00 \u2014 provisional, thresholds enforce at n>=100",
     "org_merge": "100% on 14-org alias seed (gate >=90%); top20 collision-free; CSIR HQ != CSIR-NML",
     "graph": "12/12 record nodes, 0 dangling edges, co-filing edge verified",
     "note": "lexicon is the documented fallback baseline; Week 2 fine-tunes SciBERT on GPU after hold-out expansion + labelling agreement >=80%"
@@ -49,10 +49,48 @@
     "backup": "21 files tarball; verify ok; restore byte-identical; tamper detected via manifest",
     "nightly": "harvest+evaluate+graph+backup complete unattended, exit 0",
     "deliverables": "report, architecture.mmd, deck, demo script, checklist all present",
-    "open_human": ["cloud deploy + regress against it", "demo recording", "mentor whitespace sign-off", "upload by midday 30 Oct"]
+    "open_human": [
+      "cloud deploy + regress against it",
+      "demo recording",
+      "mentor whitespace sign-off",
+      "upload by midday 30 Oct"
+    ]
   },
   "tolerance": {
     "quality_pp": 2.0,
     "speed_pct": 20.0
-  }
+  },
+  "metrics": {
+    "s3.mineral_macro_f1": {
+      "value": 0.75,
+      "kind": "quality",
+      "recorded": "2026-09-21"
+    },
+    "s3.mineral_subset_accuracy": {
+      "value": 0.75,
+      "kind": "quality",
+      "recorded": "2026-09-21"
+    },
+    "s3.org_merge_rate": {
+      "value": 1.0,
+      "kind": "quality",
+      "recorded": "2026-09-21"
+    },
+    "s3.stage_macro_f1": {
+      "value": 1.0,
+      "kind": "quality",
+      "recorded": "2026-09-21"
+    },
+    "s3.stage_subset_accuracy": {
+      "value": 1.0,
+      "kind": "quality",
+      "recorded": "2026-09-21"
+    },
+    "s4.search_ms_avg": {
+      "value": 0.0103,
+      "kind": "speed",
+      "recorded": "2026-09-21"
+    }
+  },
+  "metrics_note": "Machine-readable baselines enforced by backend/app/quality/drift.py and scripts/check_drift.py. quality = higher-is-better fraction, tolerance in percentage points; speed = lower-is-better duration, tolerance in percent. Measured on the frozen golden set so harvest volume cannot move them."
 }

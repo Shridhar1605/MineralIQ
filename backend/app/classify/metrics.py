@@ -1,9 +1,12 @@
 """Hold-out scoring (Stage 3). Multi-label subset accuracy + macro-F1.
 
-Empty-label rule (documented): a label appearing in neither gold nor
-predictions scores F1 1.0 (trivially correct) instead of sklearn's 0 —
-otherwise untested labels would punish a small seed hold-out. Week 2's
-n>=100 hold-out exercises every label for real.
+Empty-label rule: a label that appears in neither gold nor predictions is
+*excluded* from the macro average, and the count of such labels is reported.
+Scoring it 1.0 (the previous rule) inflated the figure — with five mineral
+labels and a seed hold-out exercising two of them, three free 1.0s dominated
+the mean and a stage macro-F1 of 1.00 rested on four untested labels.
+Scoring it 0.0 would punish an unexercised label just as wrongly. Excluding
+it, and saying how many were excluded, is the honest reading.
 """
 from .lexicon import LexiconClassifier  # noqa: F401
 
@@ -17,14 +20,15 @@ def score_task(gold, pred, labels):
         fp = sum(1 for g, p in zip(gold, pred) if lab not in g and lab in p)
         fn = sum(1 for g, p in zip(gold, pred) if lab in g and lab not in p)
         if tp + fp + fn == 0:
-            f1s[lab] = 1.0
-        else:
-            prec = tp / (tp + fp) if tp + fp else 0.0
-            rec = tp / (tp + fn) if tp + fn else 0.0
-            f1s[lab] = 2 * prec * rec / (prec + rec) if prec + rec else 0.0
-    macro = sum(f1s.values()) / len(labels)
+            continue  # unexercised by this hold-out; excluded from the mean
+        prec = tp / (tp + fp) if tp + fp else 0.0
+        rec = tp / (tp + fn) if tp + fn else 0.0
+        f1s[lab] = 2 * prec * rec / (prec + rec) if prec + rec else 0.0
+    macro = sum(f1s.values()) / len(f1s) if f1s else 0.0
     return {"n": n, "subset_accuracy": round(subset, 4),
-            "macro_f1": round(macro, 4), "per_label_f1": {k: round(v, 4) for k, v in f1s.items()}}
+            "macro_f1": round(macro, 4),
+            "labels_scored": len(f1s), "labels_unexercised": len(labels) - len(f1s),
+            "per_label_f1": {k: round(v, 4) for k, v in f1s.items()}}
 
 
 def passes_gate(mineral_scores, stage_scores):

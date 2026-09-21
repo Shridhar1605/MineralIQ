@@ -1,11 +1,38 @@
 name: ci
 on: [push, pull_request]
+
 jobs:
   regress:
+    name: cumulative gates s1-s6 + metric drift
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.11"}
       - run: pip install -r requirements.txt
-      - run: make regress
+      - name: Harvest saved samples
+        # The gates assert that harvested records reach search and the gap
+        # matrix, so the raw store has to exist in CI too. No network: the
+        # adapters parse fixtures/adapter_samples only.
+        run: python3 scripts/harvest.py --out data/raw_store.jsonl
+      - name: Cumulative regression and drift gate
+        run: make regress
+
+  image:
+    name: api image builds and serves
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the api image
+        run: docker build -f backend/Dockerfile -t mineraliq-api:ci .
+      - name: Start it and check the API answers
+        # Catches the class of breakage the s1 gate could not see: an image
+        # that builds but cannot resolve its imports or find its fixtures.
+        run: |
+          docker run -d --name api -p 8000:8000 mineraliq-api:ci
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:8000/health && break || sleep 1
+          done
+          curl -sf http://127.0.0.1:8000/health
+          curl -sf "http://127.0.0.1:8000/search?q=spodumene" > /dev/null
+          docker logs api
