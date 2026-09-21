@@ -59,6 +59,42 @@ def test_compose_one_command_stack():
     assert "db:" in yml and "postgres:15-alpine" in yml and "api:" in yml
     assert "/docker-entrypoint-initdb.d/001_schema.sql" in yml
 
+
+def test_compose_api_build_context_is_repo_root():
+    """The api service must build from the repo root, because the Dockerfile
+    copies requirements.txt, fixtures/ and taxonomy/ which live above backend/."""
+    yml = COMPOSE.read_text()
+    assert "context: ." in yml, "api build context must be the repo root"
+    assert "dockerfile: backend/Dockerfile" in yml
+
+
+def test_compose_credentials_are_not_hardcoded():
+    """Plan Section 4: no credentials in the repository."""
+    yml = COMPOSE.read_text()
+    assert "POSTGRES_PASSWORD: ${" in yml, "DB password must come from the environment"
+    assert "PASSWORD: mineraliq" not in yml
+
+
+def test_dockerfile_copy_paths_exist_in_build_context():
+    """Every COPY source must exist relative to the build context (repo root),
+    otherwise `docker compose up --build` fails before the API ever starts."""
+    lines = (ROOT / "backend" / "Dockerfile").read_text().splitlines()
+    copies = [l.split()[1] for l in lines if l.strip().startswith("COPY ")]
+    assert copies, "Dockerfile has no COPY instructions"
+    for src in copies:
+        assert (ROOT / src).exists(), f"COPY source missing from build context: {src}"
+
+
+def test_dockerfile_layout_matches_path_helpers():
+    """main.py uses parents[2] and search/store.py uses parents[3] to find the
+    repo root. The image must mirror <root>/backend/app/... or those resolve to
+    a directory with no fixtures/ or taxonomy/."""
+    df = (ROOT / "backend" / "Dockerfile").read_text()
+    assert "/srv/backend/app" in df, "app must sit at <root>/backend/app inside the image"
+    for needed in ("/srv/fixtures", "/srv/taxonomy"):
+        assert needed in df, f"image is missing {needed}, which load_records() reads"
+    assert "PYTHONPATH=/srv/backend/app" in df, "top-level imports need backend/app on sys.path"
+
 def test_api_health_shape():
     import importlib.util
     spec = importlib.util.spec_from_file_location("main", ROOT / "backend" / "app" / "main.py")

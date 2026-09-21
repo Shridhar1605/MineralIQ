@@ -2,9 +2,9 @@ services:
   db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_USER: mineraliq
-      POSTGRES_PASSWORD: mineraliq
-      POSTGRES_DB: mineraliq
+      POSTGRES_USER: ${POSTGRES_USER:-mineraliq}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mineraliq}
+      POSTGRES_DB: ${POSTGRES_DB:-mineraliq}
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db/schema_v1.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
@@ -33,12 +33,14 @@ services:
   #   volumes: [osdata:/usr/share/opensearch/data]
 
   api:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     depends_on:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://mineraliq:mineraliq@db:5432/mineraliq
+      DATABASE_URL: postgresql://${POSTGRES_USER:-mineraliq}:${POSTGRES_PASSWORD:-mineraliq}@db:5432/${POSTGRES_DB:-mineraliq}
     ports:
       - "8000:8000"
 
