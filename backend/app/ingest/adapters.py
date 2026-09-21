@@ -104,8 +104,17 @@ _CARD = re.compile(
 
 
 class _ListingAdapter(BaseAdapter):
+    """Institutional project/news listings.
+
+    These pages carry no applicant field: the publishing institution IS the
+    organisation behind the work, so it is recorded as the applicant. Without
+    this, organisation analytics would count patents only and a CSIR-NML pilot
+    project would contribute nothing to the CSIR-NML profile.
+    """
+
     kind = "rd"
     required = REQUIRED_RD
+    organisation = None
 
     def parse(self, raw):
         return [
@@ -116,6 +125,7 @@ class _ListingAdapter(BaseAdapter):
                 "title": clean_text(title),
                 "abstract": clean_text(desc),
                 "filing_date": clean_text(date),
+                "applicants": [self.organisation] if self.organisation else [],
             }
             for url, title, date, desc in _CARD.findall(raw)
         ]
@@ -123,18 +133,22 @@ class _ListingAdapter(BaseAdapter):
 
 class CsirNmlAdapter(_ListingAdapter):
     source_id = "csir_nml"
+    organisation = "CSIR-NML"
 
 
 class CsirImmtAdapter(_ListingAdapter):
     source_id = "csir_immt"
+    organisation = "CSIR-IMMT"
 
 
 class JnarddcAdapter(_ListingAdapter):
     source_id = "jnarddc"
+    organisation = "JNARDDC"
 
 
 class DstSerbAdapter(_ListingAdapter):
     source_id = "dst_serb"
+    organisation = "DST-SERB"
 
 
 class OpenAlexAdapter(BaseAdapter):

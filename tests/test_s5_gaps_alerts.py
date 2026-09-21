@@ -14,13 +14,35 @@ ROOT = pathlib.Path(api.__file__).resolve().parents[2]
 
 
 def test_five_sampled_cells_match_hand_calculation():
+    """The fixture is hand-computed from the golden records (see its note), so
+    it is checked against a matrix built from those records alone. Appending a
+    harvested record must not look like a matrix bug. Append-only: >= 5."""
+    from analytics.gaps import build_matrix
+    from search.store import load_golden_records
+
     hand = json.loads((ROOT / "fixtures" / "gap_handcheck.json").read_text())
-    assert len(hand["cells"]) == 5
-    matrix = api.do_matrix()
+    assert len(hand["cells"]) >= 5
+    matrix = build_matrix(load_golden_records())
     for cell in hand["cells"]:
         got = matrix["cells"][cell["mineral"]][cell["stage"]]
         assert got["patents"] == cell["patents"], cell
         assert got["research"] == cell["research"], cell
+
+
+def test_harvested_records_reach_the_gap_matrix():
+    """Harvesting must move the matrix, otherwise Week 1 changes nothing."""
+    from analytics.gaps import build_matrix
+    from search.store import load_golden_records, load_records
+
+    from search.store import RAW_STORE
+    if not RAW_STORE.exists():
+        pytest.skip("no harvest on disk; run scripts/harvest.py")
+    golden, merged = load_golden_records(), load_records()
+    assert len(merged) > len(golden), "a harvest exists but adds nothing to the store"
+    gm, mm = build_matrix(golden), build_matrix(merged)
+    total = lambda m: sum(c["patents"] + c["research"]
+                          for row in m["cells"].values() for c in row.values())
+    assert total(mm) > total(gm), "harvested records never reach the matrix"
 
 
 def test_whitespace_ranking_and_shapes():

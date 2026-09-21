@@ -39,13 +39,44 @@ def test_api_contract_shapes():
 
 
 def test_golden_queries_return_expected_top():
+    """Frozen ranking contract over the golden set.
+
+    Evaluated against the hand-checked fixtures alone, not the merged store:
+    harvest volume changes every run, so pinning ranking to it would make a
+    legitimate harvest look like a ranking regression. The fixture is
+    append-only, hence >= rather than ==.
+    """
+    from search.index import SearchIndex
+    from search.store import load_golden_records
+
     gq = json.loads((ROOT / "fixtures" / "golden_queries.json").read_text())
-    assert len(gq["queries"]) == 20
+    assert len(gq["queries"]) >= 20
+    index = SearchIndex(load_golden_records())
     for q in gq["queries"]:
-        res = api.do_search(q["q"], mineral=q.get("mineral"),
-                            stage=q.get("stage"), kind=q.get("kind"))
+        res = index.search(q["q"], mineral=q.get("mineral"),
+                           stage=q.get("stage"), kind=q.get("kind"))
         assert res["results"], q
         assert res["results"][0]["id"] == q["expected_top"], q
+
+
+def test_harvested_records_are_searchable():
+    """A harvest must change what search returns, or ingestion is decorative."""
+    from search.index import SearchIndex
+    from search.store import load_golden_records, load_records
+
+    golden_ids = {r["doc_id"] for r in load_golden_records()}
+    merged = load_records()
+    extra = [r for r in merged if r["doc_id"] not in golden_ids]
+    from search.store import RAW_STORE
+    if not RAW_STORE.exists():
+        pytest.skip("no harvest on disk; run scripts/harvest.py")
+    assert extra, "a harvest exists on disk but none of it reached the store"
+    index = SearchIndex(merged)
+    found = set()
+    for r in extra:
+        hits = index.search(r["title"], limit=50)["results"]
+        found.update(h["id"] for h in hits)
+    assert found & {r["doc_id"] for r in extra}, "harvested records are not searchable"
 
 
 def test_search_answers_under_one_second():

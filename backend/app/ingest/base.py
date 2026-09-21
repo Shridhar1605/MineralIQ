@@ -5,6 +5,7 @@ source_url + fetched_at (provenance gate); the DB enforces UNIQUE(source_id,
 source_url), so dedupe_key() uses the same pair and a repeated harvest can
 never insert duplicates.
 """
+import hashlib
 import html
 import re
 
@@ -58,6 +59,47 @@ def clean_record(rec):
 
 def dedupe_key(rec):
     return (rec.get("source_id"), rec.get("source_url"))
+
+
+_KIND_CODE = re.compile(r"^(?P<stem>.*\d)(?P<kind>[A-Z]\d?)$")
+
+
+def patent_key(rec):
+    """Cross-source identity for a patent, or None when there is no number.
+
+    dedupe_key((source_id, source_url)) only prevents duplicates *within* a
+    source, which is what the DB UNIQUE constraint enforces. The same Indian
+    application is published by several sources under different URLs, e.g.
+    PATENTSCOPE ...docId=IN201841002345 and Google Patents .../IN201841002345B,
+    so without an entity key it is counted twice in every total and every gap
+    cell. Normalising strips punctuation, case and the trailing kind code
+    (A, B, A1, B2 ...) which marks the publication stage, not the invention.
+    """
+    raw = clean_text(rec.get("appl_no")).upper()
+    raw = re.sub(r"[^A-Z0-9]", "", raw)
+    if not raw:
+        return None
+    m = _KIND_CODE.match(raw)
+    if m and len(m.group("stem")) >= 8:
+        raw = m.group("stem")
+    return raw
+
+
+def record_id(rec):
+    """Stable public id for a harvested record.
+
+    Patents carry an application number, which is the natural key. R&D and
+    publication records have none, so the id is derived from the same
+    (source_id, source_url) pair that dedupe_key and the DB UNIQUE constraint
+    use: the same page always yields the same id, so a repeated harvest
+    updates a record rather than creating a second one.
+    """
+    appl = clean_text(rec.get("appl_no"))
+    if appl:
+        return appl
+    key = "|".join(str(p) for p in dedupe_key(rec))
+    digest = hashlib.sha1(key.encode("utf-8")).hexdigest()[:10]
+    return f"{rec.get('source_id', 'src')}-{digest}"
 
 
 def completeness(records, required):
