@@ -42,6 +42,11 @@ class GooglePatentsAdapter(BaseAdapter):
                 continue
             row = json.loads(line)
             pub_no = clean_text(row.get("publication_number"))
+            if not pub_no:
+                # Without a publication number the URL would be the bare
+                # prefix, which passes startswith("http") and the NOT NULL
+                # constraint while pointing at nothing.
+                continue
             records.append(
                 {
                     "source_id": self.source_id,

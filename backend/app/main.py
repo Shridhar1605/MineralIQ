@@ -134,8 +134,11 @@ def _alert_store(path=None):
     return AlertStore(path or root / "data" / "alerts.json")
 
 
-def do_subscribe(store, mineral=None, stage=None, kind=None, q=""):
-    return store.subscribe(mineral=mineral, stage=stage, kind=kind, q=q)
+def do_subscribe(store, mineral=None, stage=None, kind=None, q="", known_records=None):
+    """Seed the subscription with the corpus as it stands, so the subscriber
+    hears about what arrives next rather than about everything already held."""
+    return store.subscribe(mineral=mineral, stage=stage, kind=kind, q=q,
+                           known_records=RECORDS if known_records is None else known_records)
 
 
 def do_check(store, records=None):

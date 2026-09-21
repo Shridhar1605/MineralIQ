@@ -92,3 +92,46 @@ def test_existing_api_shapes_unchanged():
     assert set(s) == {"query", "elapsed_ms", "count", "results"}
     assert api.do_get_record("PAT-LI-001")["id"] == "PAT-LI-001"
     assert api.do_summary()["totals"]["records"] == len(api.RECORDS)
+
+
+def test_late_subscriber_still_receives_new_records(tmp_path):
+    """Regression: the old global seen-set consumed a record on first check
+    even with no subscriptions, so anyone subscribing afterwards was
+    permanently deaf to it."""
+    store = AlertStore(tmp_path / "alerts.json")
+    rec = {"doc_id": "SYN-100", "title": "Lithium brine adsorbent",
+           "abstract": "DLE resin", "mineral_ids": ["LI"],
+           "stage_ids": ["extraction_refining"], "kind": "patent"}
+
+    assert store.check([rec]) == [], "no subscriptions, so nothing can fire"
+
+    store.subscribe(mineral="LI")   # subscriber arrives afterwards
+    fired = store.check([rec])
+    assert [f["record_id"] for f in fired] == ["SYN-100"], \
+        "the record was consumed by a check that had no subscribers"
+
+    assert store.check([rec]) == [], "a repeat harvest must fire nothing"
+
+
+def test_one_subscriber_does_not_silence_another(tmp_path):
+    """Seen-state is per subscription, not global."""
+    store = AlertStore(tmp_path / "alerts.json")
+    a = store.subscribe(mineral="LI")
+    b = store.subscribe(mineral="LI")
+    rec = {"doc_id": "SYN-200", "title": "Lithium extraction",
+           "abstract": "x", "mineral_ids": ["LI"],
+           "stage_ids": ["extraction_refining"], "kind": "patent"}
+    fired = store.check([rec])
+    assert {f["sub_id"] for f in fired} == {a["id"], b["id"]}, \
+        "both subscriptions must be notified"
+    assert store.check([rec]) == [], "a repeat harvest must fire nothing"
+
+
+def test_new_subscription_is_not_flooded_with_history(tmp_path):
+    """Subscribing to a populated corpus must not replay it as alerts."""
+    store = AlertStore(tmp_path / "alerts.json")
+    history = [{"doc_id": f"OLD-{i}", "title": "Lithium extraction", "abstract": "",
+                "mineral_ids": ["LI"], "stage_ids": ["extraction_refining"],
+                "kind": "patent"} for i in range(5)]
+    store.subscribe(mineral="LI", known_records=history)
+    assert store.check(history) == [], "history must not replay as alerts"

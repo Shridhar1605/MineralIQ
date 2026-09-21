@@ -21,7 +21,8 @@ SAMPLE_FILES = {
 }
 
 
-def run(samples_dir, fetched_at="2026-09-17"):
+def run(samples_dir, fetched_at=None):
+    """fetched_at defaults to today, resolved per call."""
     samples_dir = pathlib.Path(samples_dir)
     records, stats = [], {}
     for adapter in ADAPTERS:

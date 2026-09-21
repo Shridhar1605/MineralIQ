@@ -5,13 +5,24 @@ source_url + fetched_at (provenance gate); the DB enforces UNIQUE(source_id,
 source_url), so dedupe_key() uses the same pair and a repeated harvest can
 never insert duplicates.
 """
+import datetime
 import hashlib
 import html
 import re
 
-REQUIRED_PATENT = ["title", "applicants", "filing_date"]
-REQUIRED_RD = ["title", "source_url"]
-REQUIRED_PUBLICATION = ["title", "source_url"]
+# Provenance is a hard requirement of the plan (Section 4: every record must
+# carry its source URL and fetch date so any dashboard figure can be traced),
+# so both fields belong in the completeness gate, not just in the DB schema.
+_PROVENANCE = ["source_url", "fetched_at"]
+REQUIRED_PATENT = ["title", "applicants", "filing_date"] + _PROVENANCE
+REQUIRED_RD = ["title"] + _PROVENANCE
+REQUIRED_PUBLICATION = ["title"] + _PROVENANCE
+
+
+def today():
+    """Resolved per call. A module-level literal would stamp every future
+    harvest with the date the code was written."""
+    return datetime.date.today().isoformat()
 
 _WS = re.compile(r"\s+")
 
@@ -123,7 +134,7 @@ class BaseAdapter:
     def parse(self, raw):
         raise NotImplementedError
 
-    def run(self, raw, source_url_hint="", fetched_at="2026-09-17"):
+    def run(self, raw, source_url_hint="", fetched_at=None):
         records = [clean_record(r) for r in self.parse(raw)]
         for r in records:
             r.setdefault("source_id", self.source_id)
@@ -131,5 +142,5 @@ class BaseAdapter:
             if not r.get("source_url"):
                 r["source_url"] = source_url_hint
             if not r.get("fetched_at"):
-                r["fetched_at"] = fetched_at
+                r["fetched_at"] = fetched_at or today()
         return records

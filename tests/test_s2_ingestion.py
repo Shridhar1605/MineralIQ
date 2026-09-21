@@ -99,3 +99,36 @@ def test_institutional_sources_attribute_their_organisation():
     assert listings, "no listing adapters found"
     for source_id, org in listings.items():
         assert org, f"{source_id} does not say which organisation it represents"
+
+
+def test_fetched_at_is_todays_date_not_a_literal():
+    """Regression: fetched_at defaulted to a hardcoded '2026-09-17', so every
+    future harvest claimed to have run on the day the code was written and the
+    provenance promise in the submission was untrue."""
+    import datetime
+    from ingest.pipeline import run as run_pipeline
+
+    records, _ = run_pipeline(ROOT / "fixtures" / "adapter_samples")
+    today = datetime.date.today().isoformat()
+    assert {r["fetched_at"] for r in records} == {today}
+
+
+def test_provenance_is_in_the_completeness_gate():
+    """source_url and fetched_at must be gated, not merely present in the
+    schema, or a record with no traceable origin passes at 95% completeness."""
+    from ingest.base import REQUIRED_PATENT, REQUIRED_PUBLICATION, REQUIRED_RD
+
+    for required in (REQUIRED_PATENT, REQUIRED_RD, REQUIRED_PUBLICATION):
+        assert "source_url" in required and "fetched_at" in required
+
+
+def test_patent_without_publication_number_is_dropped():
+    """A blank publication number yields the bare URL prefix, which passes
+    startswith('http') and the NOT NULL constraint while pointing at nothing."""
+    from ingest.adapters import GooglePatentsAdapter
+
+    good = '{"publication_number": "IN123456789A", "title_localized": [{"text": "x", "language": "en"}]}'
+    blank = '{"publication_number": "", "title_localized": [{"text": "y", "language": "en"}]}'
+    out = GooglePatentsAdapter().run("\n".join([good, blank]))
+    assert len(out) == 1
+    assert out[0]["source_url"].rstrip("/") != "https://patents.google.com/patent"
