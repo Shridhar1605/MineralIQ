@@ -11,7 +11,7 @@ function Search() {
   useEffect(run, []);
   return (<div>
     <input value={q} onChange={(e) => setQ(e.target.value)} size="50" />
-    <button onClick={run}>Search</button>
+    <button data-testid="search-submit" onClick={run}>Search</button>
     <p>{res ? `${res.count} hits in ${res.elapsed_ms} ms` : '…'}</p>
     <ul>{(res?.results || []).map((h) => (
       <li key={h.id}><a href="#" onClick={(e) => { e.preventDefault(); record(h.id).then(setDetail); }}>{h.title}</a>
@@ -71,7 +71,7 @@ export default function App() {
   const [tab, setTab] = useState('Search');
   return (<div>
     <h1>MineralIQ</h1>
-    <nav>{TABS.map((t) => <button key={t} disabled={t === tab} onClick={() => setTab(t)}>{t}</button>)}</nav>
+    <nav>{TABS.map((t) => <button key={t} data-testid={`tab-${t}`} disabled={t === tab} onClick={() => setTab(t)}>{t}</button>)}</nav>
     {tab === 'Search' && <Search />}{tab === 'Dashboards' && <Dashboards />}
     {tab === 'Heatmap' && <Heatmap />}{tab === 'Organisations' && <Organisations />}
     {tab === 'Gaps' && <Gaps />}

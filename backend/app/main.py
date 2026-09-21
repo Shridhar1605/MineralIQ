@@ -1,11 +1,24 @@
 import pathlib
+import os
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from alerts.store import AlertStore
 from analytics.gaps import build_matrix, collaborations, rank_whitespace
 from search.index import SearchIndex
 from search.store import load_records
 
 app = FastAPI(title="MineralIQ API", version="0.1.0")
+
+# The web app is same-origin in production (the bundle is served below) and
+# proxied in dev, so CORS is only needed when the frontend is hosted apart
+# from the API. Origins are configurable; the default covers local dev.
+_origins = [o for o in os.environ.get(
+    "MINERALIQ_CORS_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173").split(",") if o.strip()]
+app.add_middleware(
+    CORSMiddleware, allow_origins=_origins, allow_credentials=False,
+    allow_methods=["GET", "POST"], allow_headers=["*"],
+)
 
 @app.get("/health")
 def health():
@@ -154,3 +167,12 @@ def api_subscribe(body: dict):
 @app.post("/alerts/check")
 def api_check():
     return do_check(_alert_store())
+
+
+# Serve the built web app when it exists, so a single container answers both
+# the API and the UI. Mounted last: FastAPI matches routes in order, so every
+# API route above is resolved before this catch-all.
+_DIST = pathlib.Path(__file__).resolve().parents[2] / "frontend" / "dist"
+if _DIST.is_dir():
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/", StaticFiles(directory=str(_DIST), html=True), name="web")
