@@ -1,0 +1,239 @@
+# Excerpt of the Official Journal of the Patent Office, No. 38/2026 dated 18/09/2026,
+# Part I, published by the Office of the Controller General of Patents, Designs and
+# Trade Marks, Government of India (public document). Text extracted with pdftotext.
+# Four records chosen to cover each IPC layout and name layout the parser handles.
+(12) PATENT APPLICATION PUBLICATION
+
+(21) Application No.202511005780 A
+
+(19) INDIA
+(22) Date of filing of Application :24/01/2025
+
+(43) Publication Date : 18/09/2026
+
+(54) Title of the invention : IRON GRANULES FOR FORTIFICATION OF FOOD
+
+(51) International classification
+(31) Priority Document No
+(32) Priority Date
+(33) Name of priority country
+(86) International Application No
+Filing Date
+(87) International Publication No
+(61) Patent of Addition to Application Number
+Filing Date
+(62) Divisional to Application Number
+Filing Date
+
+:A23L29/00, (71)Name of Applicant :
+A23L33/15,
+1)Chaudhary Charan Singh Haryana Agricultural University(CCSHAU)
+A61P3/02
+Address of Applicant :Chaudhary Charan Singh Haryana Agricultural
+:NA
+University(CCSHAU), Hisar – 125004, Haryana, India. Hisar Haryana India
+:NA
+(72)Name of Inventor :
+:NA
+1)SINDHU, Sangeeta Chahal
+:
+2)Sonia
+:01/01/1900
+: NA
+:NA
+:NA
+:NA
+:NA
+
+(57) Abstract :
+The current invention describes granules comprises of a core containing Vitamin C (Ascorbic Acid) and a Vitamin-mineral premix comprising of a Vitamin B12, Ferric
+pyrophosphate and a Folic acid which can be used for fortification of foods and the process for preparation thereof. The invention further deals with iron fortified
+biscuits and the process for preparation thereof.
+No. of Pages : 23 No. of Claims : 9
+
+The Patent Office Journal No. 38/2026 Dated 18/09/2026
+
+116664
+
+(12) PATENT APPLICATION PUBLICATION
+
+(21) Application No.202511023031 A
+
+(19) INDIA
+(22) Date of filing of Application :14/03/2025
+
+(43) Publication Date : 18/09/2026
+
+(54) Title of the invention : Advanced Heat Recovery Stack System for Biomass-Fired Boilers
+
+(51) International classification
+
+(31) Priority Document No
+(32) Priority Date
+(33) Name of priority country
+(86) International Application No
+Filing Date
+(87) International Publication No
+(61) Patent of Addition to Application Number
+Filing Date
+(62) Divisional to Application Number
+Filing Date
+
+:B09B3/00, (71)Name of Applicant :
+F01K23/06, 1)RAVI KUMAR
+F23G5/20,
+Address of Applicant :A146 GALI NO 15 HARSH VIHAR COLONY HARI
+F23J15/08, NAGAR PART III TANKI ROAD, NEAR AGGARWAL SWEETS NEW DELHI
+F22D1/36, 110044, SOUTH WEST DELHI, DELHI, INDIA, 110044 Delhi India
+B01D50/00, (72)Name of Inventor :
+F23L15/00
+1)RAVI KUMAR
+:NA
+2)Mr. Vijay setia
+:NA
+:NA
+:
+:01/01/1900
+: NA
+:NA
+:NA
+:NA
+:NA
+
+(57) Abstract :
+The present invention provides a heat recovery stack system for biomass-fired boilers that improves energy efficiency, reduces emissions, and optimizes fuel utilization.
+The system integrates a modified heat recovery stack designed to capture and repurpose waste heat from flue gases. This recovered heat is used for preheating feedwater
+and drying biomass fuel i.e. adsorbent before combustion, thereby enhancing combustion efficiency and reducing emissions. The system further incorporates a
+controlled exhaust ducting mechanism to ensure safe dispersion of flue gases while minimizing environmental impact. The invention includes an automated control unit
+that dynamically adjusts operational parameters based on real-time data. The modular and adaptable design enables easy integration with various biomass boiler
+systems, making it a cost-effective solution for industries seeking improved thermal efficiency and sustainability.
+No. of Pages : 18 No. of Claims : 16
+
+The Patent Office Journal No. 38/2026 Dated 18/09/2026
+
+116666
+
+(12) PATENT APPLICATION PUBLICATION
+
+(21) Application No.202611088559 A
+
+(19) INDIA
+(22) Date of filing of Application :21/07/2026
+
+(43) Publication Date : 18/09/2026
+
+(54) Title of the invention : ECO-EXTRACTION SYSTEM FOR RECOVERING REUSABLE PIGMENTS FROM COLOURED TEXTILE WASTE
+
+(51) International classification
+
+(31) Priority Document No
+(32) Priority Date
+(33) Name of priority country
+(86) International Application No
+Filing Date
+(87) International Publication No
+(61) Patent of Addition to Application Number
+Filing Date
+(62) Divisional to Application Number
+Filing Date
+
+:C09B
+(71)Name of Applicant :
+67/54,
+1)K. R. Mangalam University
+C09B
+Address of Applicant :Sohna Road, Gurugram, Haryana -122103, India Sohna
+61/00,
+Haryana India
+B09B 3/00, (72)Name of Inventor :
+C09B
+1)Deepanshu Sharma
+67/00,
+2)Indrajeet Kumar
+C09B
+67/20
+:NA
+:NA
+:NA
+:
+:01/01/1900
+: NA
+:NA
+:NA
+:NA
+:NA
+
+(57) Abstract :
+The present invention relates to an eco-extraction system and process for recovering reusable pigment from coloured textile waste. The process comprises segregating
+the waste by colour class, mechanically shredding it, contacting the comminuted feed with an eco-solvent, applying ultrasonic energy to assist release of embedded
+colourant, separating and purifying the colourant-bearing liquor by membrane filtration, regenerating the purified colourant into a solid pigment, stabilising it, and
+recovering a pigment powder. A pigment-recovery system comprising a shredder, extraction reactor, ultrasonic treatment chamber, filtration unit, precipitation tank,
+drying chamber and milling unit connected as a continuous pipeline carries out the process. The recovered pigment is formulated with a stabilising agent and a
+dispersing binder into an eco-friendly pigment composition for artist paints and printing inks. The arrangement recovers colourant without impairing its chromatic
+properties, diverting textile waste from landfill and enabling a circular economy for textile colour.
+No. of Pages : 16 No. of Claims : 8
+
+The Patent Office Journal No. 38/2026 Dated 18/09/2026
+
+116703
+
+(12) PATENT APPLICATION PUBLICATION
+
+(21) Application No.202511062000 A
+
+(19) INDIA
+(22) Date of filing of Application :29/06/2025
+
+(43) Publication Date : 18/09/2026
+
+(54) Title of the invention : AI-Powered system for rapid, automated, and user-customizable real-time PCR analysis.
+
+(51) International classification
+
+(31) Priority Document No
+(32) Priority Date
+(33) Name of priority country
+(86) International Application No
+Filing Date
+(87) International Publication No
+(61) Patent of Addition to Application Number
+Filing Date
+(62) Divisional to Application Number
+Filing Date
+
+:C12Q0001700000, (71)Name of Applicant :
+G16B0040000000,
+1)Agaaz Bansal
+C12Q0001686000,
+Address of Applicant :Punjab Engineering College (Deemed to be University),
+C12Q0001685100, Sector 12, Chandigarh, 160012. Chandigarh Chandigarh India
+G16H0050200000
+2)Parminder Kathuria
+:NA
+(72)Name of Inventor :
+:NA
+1)Agaaz Bansal
+:NA
+2)Aadil Bansal
+:
+:01/01/1900
+: NA
+:NA
+:NA
+:NA
+:NA
+
+(57) Abstract :
+The present invention relates to a diagnostic computing apparatus (100) and signal-processing method for real-time polymerase chain reaction (rt-PCR) data analysis.
+The apparatus ingests digitized relative fluorescence unit time-series arrays (104) from an external instrument (102), executing minimum-coordinate structural gating to
+exclude truncated records and computing a common sample intersection matrix. The apparatus comprises a curve-fitting engine (114) that fits a continuous fourparameter sigmoidal model seeded via analog warm-start initializations bounded by a digital exponent clamping register (120) preventing floating-point overflow. An
+extraction processor (116) derives feature parameters evaluated by a majority-voting processor (118) applying an asymmetric weighting matrix (121) to internal control
+channels. A decision-mapping engine (122) assigns composite outcomes tabulated inside an electronic workbook (130) programmatically linked to isolated graphical
+evidence records (128).
+No. of Pages : 30 No. of Claims : 10
+
+The Patent Office Journal No. 38/2026 Dated 18/09/2026
+
+116687
+
+

@@ -5,8 +5,8 @@ Two tiers, deliberately separate:
 * **Golden fixtures** are the frozen, hand-checked set. Their labels are
   authoritative, their count is a contract, and the gate tests assert against
   them through ``load_golden_records()``. They are append-only.
-* **The harvested store** (``data/raw_store.jsonl``, written by
-  ``scripts/harvest.py``) is live data. Its volume changes every harvest, so
+* **The harvested store** (``data/raw*.jsonl``, written by
+  ``scripts/harvest.py`` and ``scripts/harvest_ipo.py``) is live data. Its volume changes every harvest, so
   nothing asserts on its size.
 
 ``load_records()`` returns both, deduplicated on ``(source_id, source_url)``
@@ -28,6 +28,10 @@ ROOT = pathlib.Path(__file__).resolve().parents[3]
 FIX = ROOT / "fixtures"
 GOLDEN_FILES = ("golden_patents.json", "golden_rd.json")
 RAW_STORE = ROOT / "data" / "raw_store.jsonl"
+# Every harvester writes its own file (raw_store.jsonl for the sample
+# adapters, raw_ipo.jsonl for the Official Journal) so no two writers share
+# one file; the store reads them all.
+RAW_GLOB = "raw*.jsonl"
 
 
 def _enricher():
@@ -91,18 +95,23 @@ def load_harvested_records(path=None):
     """Records written by the harvest pipeline. Empty when none have run."""
     from ingest.base import record_id
 
-    path = pathlib.Path(path) if path else RAW_STORE
-    if not path.exists():
+    if path:
+        paths = [pathlib.Path(path)]
+    else:
+        paths = sorted(RAW_STORE.parent.glob(RAW_GLOB)) if RAW_STORE.parent.exists() else []
+    paths = [p for p in paths if p.exists()]
+    if not paths:
         return []
     enrich = _enricher()
     out = []
-    with path.open() as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            r = json.loads(line)
-            out.append(enrich(r, record_id(r)))
+    for p in paths:
+        with p.open() as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                r = json.loads(line)
+                out.append(enrich(r, record_id(r)))
     return out
 
 

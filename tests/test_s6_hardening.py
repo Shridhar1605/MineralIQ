@@ -71,3 +71,19 @@ def test_readme_deploy_markers_and_env():
     env = (ROOT / ".env.example").read_text()
     assert "DATABASE_URL" in env
     assert (ROOT / "docker-compose.yml").exists()
+
+
+def test_backup_excludes_regenerable_and_self_referential_files():
+    """Regression: data/ was archived wholesale, so every nightly backup swept
+    in the previous backup's verify scratch dir (backups nested and grew) and
+    would have swept in tens of MB of re-downloadable Journal PDFs per week."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("backup", ROOT / "scripts" / "backup.py")
+    b = importlib.util.module_from_spec(spec); spec.loader.exec_module(b)
+    assert b._excluded("data/ipo_cache/38-2026_Part-I.pdf")
+    assert b._excluded("data/ipo_cache/38-2026_Part-I.txt")
+    assert b._excluded("data/backup.tgz.verify/GATES.md")
+    assert b._excluded("data/backup.tgz") and b._excluded("data/backup.tgz.manifest.json")
+    assert not b._excluded("data/raw_ipo.jsonl")
+    assert not b._excluded("data/ipo_parsed/38-2026_Part-I.jsonl")
+    assert not b._excluded("data/alerts.json")

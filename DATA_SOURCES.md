@@ -31,3 +31,34 @@ Setup:
 3. The service account needs `roles/bigquery.jobUser` on the billing project.
    Reading the public dataset alone is not enough: creating any job, including
    a dry run, requires that role.
+
+## PRIMARY patent source: Official Journal of the Patent Office (India)
+
+Decided 2026-09-23 after the Google Patents BigQuery spike failed for India
+(see docs/spikes/patent_source.md) and the EPO OPS / Lens.org routes required
+payment or slow manual approval.
+
+- Publisher: Office of the Controller General of Patents, Designs and Trade
+  Marks, Government of India. Weekly, public.
+- Listing: https://search.ipindia.gov.in/IPOJournal/Journal/Patent
+  (1,031 journals, 39/2005 to date, as of 2026-09-23).
+- Access: no login, no CAPTCHA. `robots.txt` on ipindia.gov.in is
+  `Disallow:` (empty); search.ipindia.gov.in serves none. Checked 2026-09-23.
+- Mechanism: each part is a POST to /IPOJournal/Journal/ViewJournal with a
+  hidden FileName the listing page renders. **We only submit FileName values
+  read from the page**; a constructed or edited value is refused in code
+  before any request (guidelines Section 15). One download at a time, 10 s
+  pause, identified User-Agent, every PDF cached so none is fetched twice.
+- Content used: Parts I and II (published applications, WIPO INID fields:
+  application number, dates, title, IPC, applicants, inventors, abstract).
+  Part III (weekly FER lists) and Part IV (designs) are skipped by default.
+- Volume, issue 38/2026: 2,753 published applications in Parts I and II,
+  about 43 MB, about 2.5 minutes to fetch at the polite pace.
+- Parser completeness on that issue: 100% for application number, title,
+  abstract, applicants, IPC and dates; 99.3% for inventors (Part II).
+- Attribution: "Source: Official Journal of the Patent Office, Government of
+  India" in the report and the UI footer.
+- Tooling: `scripts/harvest_ipo.py`, parser `backend/app/ingest/ipo_journal.py`,
+  requires `pdftotext` (poppler).
+
+Google Patents BigQuery is retained only as a documented negative result.

@@ -17,6 +17,22 @@ import tarfile
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 INCLUDE = ["data", "fixtures", "taxonomy", "db", "baselines.json", "GATES.md",
            "DATA_SOURCES.md"]
+# Regenerable or self-referential artefacts stay out of the archive:
+#  * data/ipo_cache holds Official Journal PDFs and their pdftotext output,
+#    re-downloadable from the public source (tens of MB per week);
+#  * previous backups and verify scratch dirs would otherwise nest inside each
+#    new backup and grow it every night.
+EXCLUDE_DIRS = ("data/ipo_cache",)
+EXCLUDE_SUFFIXES = (".tgz", ".tgz.manifest.json")
+
+
+def _excluded(rel):
+    rel = rel.replace("\\", "/")
+    if any(rel == d or rel.startswith(d + "/") for d in EXCLUDE_DIRS):
+        return True
+    if any(part.endswith(".verify") for part in rel.split("/")):
+        return True
+    return rel.endswith(EXCLUDE_SUFFIXES)
 
 
 def _sha(p):
@@ -34,7 +50,8 @@ def backup(out):
                 continue
             if p.is_dir():
                 for f in sorted(p.rglob("*")):
-                    if f.is_file() and f.resolve() not in skip:
+                    if f.is_file() and f.resolve() not in skip \
+                            and not _excluded(str(f.relative_to(ROOT))):
                         manifest[str(f.relative_to(ROOT))] = _sha(f)
                         t.add(f, arcname=str(f.relative_to(ROOT)))
             else:
@@ -50,12 +67,20 @@ def backup(out):
 
 
 def verify(archive):
-    tmp = pathlib.Path(str(archive) + ".verify")
+    import shutil
+    import tempfile
+
     manifest = json.loads(pathlib.Path(str(archive) + ".manifest.json").read_text())
-    with tarfile.open(archive, "r:gz") as t:
-        t.extractall(tmp, filter="data")
-    ok = all((tmp / rel).exists() and _sha(tmp / rel) == h
-             for rel, h in manifest["files"].items())
+    tmp = pathlib.Path(tempfile.mkdtemp(prefix="mineraliq-verify-"))
+    try:
+        with tarfile.open(archive, "r:gz") as t:
+            t.extractall(tmp, filter="data")
+        ok = all((tmp / rel).exists() and _sha(tmp / rel) == h
+                 for rel, h in manifest["files"].items())
+    finally:
+        # scratch lives outside data/ and is always removed, so it can never
+        # be swept into the next backup
+        shutil.rmtree(tmp, ignore_errors=True)
     print("verify", "ok" if ok else "FAIL")
     return ok
 
