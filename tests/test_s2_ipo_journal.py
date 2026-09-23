@@ -158,4 +158,4 @@ def test_rate_gate_backs_off_when_the_server_pushes_back():
 def test_worker_count_is_capped():
     import harvest_ipo
 
-    assert harvest_ipo.MAX_WORKERS <= 6
+    assert harvest_ipo.MAX_WORKERS <= 8

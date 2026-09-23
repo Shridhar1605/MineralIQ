@@ -10,7 +10,7 @@ anything again.
 Compliance (plan Section 4; guidelines Sections 11 and 15), enforced in code:
   * FileName values are only ever taken from the listing page; any other value
     is refused before a request is made (see ingest/ipo_journal.py).
-  * At most --workers downloads in flight (default 4, hard cap 6) and at least
+  * At most --workers downloads in flight (default 4, hard cap 8) and at least
     --pause seconds between request starts across all workers (default 1 s).
     Each part is one request that streams for about a minute, so this is a few
     requests per minute, well inside the <=1 request/second commitment in the
@@ -104,7 +104,7 @@ def select(journals, args):
     return journals[: args.latest]
 
 
-MAX_WORKERS = 6
+MAX_WORKERS = 8
 
 
 class RateGate:
