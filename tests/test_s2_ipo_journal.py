@@ -123,3 +123,39 @@ def test_journal_records_reach_the_record_store(tmp_path, records):
     loaded = load_harvested_records(f)
     assert {r["doc_id"] for r in loaded} == set(records)
     assert all(r["orgs"] for r in loaded), "applicants must resolve to organisations"
+
+
+def test_rate_gate_spaces_request_starts_across_workers():
+    """The <=1 request/second commitment holds however many workers run."""
+    import threading
+    import time
+
+    import harvest_ipo
+
+    gate = harvest_ipo.RateGate(0.2)
+    starts = []
+    def worker():
+        gate.wait()
+        starts.append(time.monotonic())
+    threads = [threading.Thread(target=worker) for _ in range(4)]
+    for th in threads: th.start()
+    for th in threads: th.join()
+    starts.sort()
+    gaps = [b - a for a, b in zip(starts, starts[1:])]
+    assert all(g >= 0.18 for g in gaps), gaps
+
+
+def test_rate_gate_backs_off_when_the_server_pushes_back():
+    import harvest_ipo
+
+    gate = harvest_ipo.RateGate(1.0)
+    assert gate.slow_down() == 2.0 and gate.slow_down() == 4.0
+    for _ in range(10):
+        gate.slow_down()
+    assert gate.interval == 60.0, "spacing must be capped, not grow without bound"
+
+
+def test_worker_count_is_capped():
+    import harvest_ipo
+
+    assert harvest_ipo.MAX_WORKERS <= 6
