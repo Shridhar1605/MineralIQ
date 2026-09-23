@@ -63,6 +63,42 @@ WHERE country_code = 'IN'
 """
 
 
+RESEARCH = "patents-public-data.google_patents_research.publications"
+
+# Per-mineral title patterns. Title-only on purpose: the research table's
+# English `title` column costs ~8.5 GB to scan while `abstract` costs ~107 GB,
+# and neither table is partitioned, so a filter never reduces bytes scanned.
+PILOT = {
+    "LI":  r"lithium|spodumene|lepidolite|petalite",
+    "REE": r"rare[ -]earth|neodymium|praseodymium|dysprosium|lanthanum|cerium|monazite|samarium|terbium",
+    "GRA": r"graphite|graphene",
+    "CO":  r"cobalt",
+    "NI":  r"nickel|laterite",
+}
+
+VOLUME_QUERY = f"""
+WITH ind AS (
+  SELECT publication_number, LOWER(title) AS t
+  FROM `{RESEARCH}`
+  WHERE STARTS_WITH(publication_number, 'IN-')
+)
+SELECT
+  COUNT(*) AS in_publications,
+  {", ".join(f"COUNTIF(REGEXP_CONTAINS(t, r'{rx}')) AS {m.lower()}" for m, rx in PILOT.items())},
+  COUNTIF(REGEXP_CONTAINS(t, r'{"|".join(PILOT.values())}')) AS any_pilot
+FROM ind
+"""
+
+# Real-data check of the cross-source identity assumption: do Indian granted
+# (B) publications carry the application number, or a different grant number?
+IDENTITY_PROBE = f"""
+SELECT publication_number, application_number, kind_code
+FROM `{TABLE}`
+WHERE country_code = 'IN' AND STARTS_WITH(kind_code, 'B')
+LIMIT 8
+"""
+
+
 def human_gb(n_bytes):
     return n_bytes / 1024 ** 3
 
@@ -71,6 +107,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true", help="estimate only, bill nothing")
     ap.add_argument("--export", action="store_true", help="run for real and save Parquet")
+    ap.add_argument("--volume", action="store_true",
+                    help="count Indian publications per pilot mineral (title only, ~11 GB)")
     ap.add_argument("--budget-gb", type=float, default=25.0,
                     help="refuse to bill a query estimated above this (default 25)")
     ap.add_argument("--out", default="data/patents_in.parquet")
@@ -90,6 +128,9 @@ def main():
     print(f"billing project : {client.project}")
     print(f"source table    : {TABLE}")
     print(f"pilot terms     : {len(TERMS)}")
+
+    if args.volume:
+        return run_volume(client, bigquery, args.budget_gb)
 
     try:
         dry = client.query(QUERY, job_config=bigquery.QueryJobConfig(
@@ -135,6 +176,36 @@ def main():
     print(f"written         : {out}")
     print("The pipeline reads this file from now on. Do not re-query.")
     print(json.dumps(record))
+    return 0
+
+
+def run_volume(client, bigquery, budget_gb):
+    """Stage 1 volume check: dry-run both queries, bill only within budget."""
+    total = 0.0
+    for name, sql in (("volume", VOLUME_QUERY), ("identity probe", IDENTITY_PROBE)):
+        dry = client.query(sql, job_config=bigquery.QueryJobConfig(
+            dry_run=True, use_query_cache=False))
+        gb = human_gb(dry.total_bytes_processed)
+        total += gb
+        print(f"dry run {name:15s}: {gb:6.2f} GB")
+    print(f"combined         : {total:6.2f} GB  ({total / 1024 * 100:.1f}% of the monthly free tier)")
+    if total > budget_gb:
+        print(f"REFUSING: over the {budget_gb} GB budget")
+        return 1
+
+    row = list(client.query(VOLUME_QUERY).result())[0]
+    print("\nIndian publications in Google Patents (all kinds, all years)")
+    print(f"  total IN publications : {row['in_publications']:,}")
+    for m in PILOT:
+        print(f"  {m:4s} title matches     : {row[m.lower()]:,}")
+    print(f"  any pilot mineral     : {row['any_pilot']:,}   (target in submission: 2,000+)")
+
+    print("\nIdentity probe: Indian granted (B) publications")
+    for r in client.query(IDENTITY_PROBE).result():
+        print(f"  {r['publication_number']:22s} application={r['application_number']:22s} kind={r['kind_code']}")
+    result = {"billed_gb": round(total, 2), "in_publications": row["in_publications"],
+              "per_mineral": {m: row[m.lower()] for m in PILOT}, "any_pilot": row["any_pilot"]}
+    print(json.dumps(result))
     return 0
 
 
